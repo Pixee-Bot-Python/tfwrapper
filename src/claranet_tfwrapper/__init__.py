@@ -540,7 +540,7 @@ def bootstrap(wrapper_config):
                 loader=jinja2.FileSystemLoader(template_path),
                 lstrip_blocks=True,
                 trim_blocks=True,
-            )
+            autoescape=True)
 
             state_yml_parameters = wrapper_config["state"].get(state_backend_name or state_backend_type) or next(
                 iter(wrapper_config["state"])
