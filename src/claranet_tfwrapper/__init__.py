@@ -883,8 +883,7 @@ def run_terraform(action, wrapper_config):
                 pipe_plan_command,
                 cwd=working_dir,
                 env=os.environ,
-                shell=True,
-                stdin=process.stdout,
+                shell=False, stdin=process.stdout,
             ) as pipe_process:
                 try:
                     pipe_process.communicate()
