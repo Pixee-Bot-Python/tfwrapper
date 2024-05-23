@@ -40,6 +40,7 @@ from termcolor import colored
 
 from . import azure
 from .utils import format_env, get_dict_value
+import fickling
 
 try:
     import importlib.metadata as importlib_metadata
@@ -415,7 +416,7 @@ def _get_aws_session(session_cache_file, region, profile):
     """Get or create boto cached session."""
     if os.path.isfile(session_cache_file) and time.time() - os.stat(session_cache_file).st_mtime < 2700:
         with open(session_cache_file, "rb") as f:
-            session_cache = pickle.load(f)
+            session_cache = fickling.load(f)
         session = boto3.Session(
             aws_access_key_id=session_cache["credentials"].access_key,
             aws_secret_access_key=session_cache["credentials"].secret_key,
