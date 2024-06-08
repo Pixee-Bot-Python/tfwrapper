@@ -8,7 +8,6 @@ import os
 import pathlib
 import pickle
 import platform
-import random
 import re
 import shutil
 import stat
@@ -40,6 +39,7 @@ from termcolor import colored
 
 from . import azure
 from .utils import format_env, get_dict_value
+import secrets
 
 try:
     import importlib.metadata as importlib_metadata
@@ -922,7 +922,7 @@ def terraform_apply(wrapper_config):
         # plan config
         plan_path = "{}/.run/plan_{}".format(
             wrapper_config["rootdir"],
-            "".join(random.choice(string.ascii_letters) for x in range(10)),
+            "".join(secrets.choice(string.ascii_letters) for x in range(10)),
         )
         plan_wrapper_config = deepcopy(wrapper_config)
         plan_wrapper_config["tf_params"][1:1] = ["-out", plan_path]
