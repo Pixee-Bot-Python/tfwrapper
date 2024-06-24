@@ -40,6 +40,7 @@ from termcolor import colored
 
 from . import azure
 from .utils import format_env, get_dict_value
+from security import safe_command
 
 try:
     import importlib.metadata as importlib_metadata
@@ -828,8 +829,7 @@ def adc_check_gke_credentials(
         logger.info("Refreshing {} GKE credentials.".format(gke_name))
         try:
             logger.debug("Executing `{} {}`".format(format_env(gke_env), " ".join(command)))
-            subprocess.run(
-                command,
+            safe_command.run(subprocess.run, command,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 check=True,
@@ -875,12 +875,11 @@ def run_terraform(action, wrapper_config):
     pipe_plan_command = wrapper_config.get("pipe_plan_command") or wrapper_config["config"].get("pipe_plan_command")
     pipe_plan = action == "plan" and wrapper_config.get("pipe_plan") and pipe_plan_command
     stdout = pipe_plan and subprocess.PIPE or None
-    with subprocess.Popen(command, cwd=working_dir, env=os.environ, shell=False, stdout=stdout) as process:
+    with safe_command.run(subprocess.Popen, command, cwd=working_dir, env=os.environ, shell=False, stdout=stdout) as process:
         logger.debug('Execute command "{}"'.format(command))
         if pipe_plan:
             logger.debug('Piping command "{}"'.format(pipe_plan_command))
-            with subprocess.Popen(
-                pipe_plan_command,
+            with safe_command.run(subprocess.Popen, pipe_plan_command,
                 cwd=working_dir,
                 env=os.environ,
                 shell=True,
@@ -1096,7 +1095,7 @@ def foreach(wrapper_config):
         detect_stack(wrapper_stack_config, parents_count, raise_on_missing=True, dir=stack)
         stack_env = get_stack_envvars(stack_config, wrapper_stack_config)
 
-        with subprocess.Popen(command, cwd=stack, shell=shell, executable=executable, env=stack_env) as process:
+        with safe_command.run(subprocess.Popen, command, cwd=stack, shell=shell, executable=executable, env=stack_env) as process:
             logger.debug('Execute command "{}" in "{}"'.format(command, stack))
             try:
                 process.communicate()
@@ -1124,8 +1123,7 @@ def terraform_completer(prefix, action, parser, parsed_args):
     # Pass environment variables unchanged, including COMP_LINE which is defined by the shell
     # when invoked during auto-completion
     logger.debug('Execute command "{}" with environment {}'.format(command, os.environ))
-    process = subprocess.run(
-        command, cwd=working_dir, env=os.environ, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding="ascii"
+    process = safe_command.run(subprocess.run, command, cwd=working_dir, env=os.environ, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding="ascii"
     )
     return sorted(process.stdout.strip().split("\n"))
 
@@ -1570,8 +1568,7 @@ def main(argv=None):
                         "print-access-token",
                     ]
                     logger.debug("Executing `{}`".format(" ".join(command)))
-                    subprocess.run(
-                        command,
+                    safe_command.run(subprocess.run, command,
                         stdout=subprocess.PIPE,
                         stderr=subprocess.STDOUT,
                         check=True,

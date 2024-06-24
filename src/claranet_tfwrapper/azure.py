@@ -5,6 +5,7 @@ import os
 import subprocess
 
 import yaml
+from security import safe_command
 
 SP_CREDENTIALS_FILE = os.path.expanduser("~/.azurerm/config.yml")
 
@@ -171,4 +172,4 @@ def _launch_cli_command(command, az_config_dir=None):
     env = os.environ.copy()
     if az_config_dir:
         env["AZURE_CONFIG_DIR"] = az_config_dir
-    subprocess.run(command, check=True, env=env, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    safe_command.run(subprocess.run, command, check=True, env=env, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
